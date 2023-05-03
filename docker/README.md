@@ -1,0 +1,1 @@
+Directory holds docker & docker-compose related stuff until we discover a more meaningful directory for such a content.

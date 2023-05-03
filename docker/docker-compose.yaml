@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  influxdb:
+    image: influxdb:2.7.1
+    container_name: fantastigo-influxdb
+    hostname: influxdb
+    volumes:
+      - fantastigo-influxdb2:/var/lib/influxdb2:rw
+    ports:
+      - '8086:8086'
+    env_file:
+      - tick/default.env
+
+  telegraf:
+    image: telegraf:1.24.4
+    container_name: fantastigo-telegraf
+    hostname: telegraf
+    volumes:
+      - ./tick/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - fantastigo-telegraf:/etc/telegraf/telegraf.d:rw
+    ports:
+      - '127.0.0.1:8125:8125/udp'
+    env_file:
+      - tick/default.env
+    depends_on:
+      - influxdb
+
+  chronograf:
+    image: chronograf:1.9.4
+    container_name: fantastigo-chronograf
+    hostname: chronograf
+    volumes:
+      - fantastigo-chronograf:/var/lib/chronograf
+    ports:
+      - "8888:8888"
+    env_file:
+      - tick/default.env
+    depends_on:
+      - influxdb
+
+volumes:
+  fantastigo-influxdb2:
+  fantastigo-telegraf:
+  fantastigo-chronograf:
