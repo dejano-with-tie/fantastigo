@@ -1,0 +1,210 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: FantastiGo Fleet
+  description: Fleet Monitoring & Management Api
+  contact:
+    name: FantastiGo
+    url: https://github.com/dejano-with-tie/fantastigo/issues
+servers:
+  - url: '{protocol}://{hostname}:{port}/api'
+    variables:
+      protocol:
+        enum: [http, https]
+        default: http
+      port:
+        default: "8080"
+      hostname:
+        default: "localhost"
+security:
+  - bearerAuth: [ ]
+tags:
+  - name: Fleet
+    description: Fleet Monitoring & Management
+  - name: Vehicle
+    description: Vehicle Management
+paths:
+  /fleet:
+    post:
+      tags:
+        - Fleet
+      summary: Create Fleet.
+      operationId: createFleet
+      requestBody:
+        description: Create Fleet
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFleet'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IdResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - Fleet
+      summary: Returns fleet information with the list of vehicles. [TEST BUILD]
+      operationId: getFleet
+      responses:
+        '200':
+          description: Fleet information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FleetResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /vehicle:
+    post:
+      tags:
+        - Vehicle
+      summary: Create vehicle
+      operationId: createVehicle
+      requestBody:
+        description: Create vehicle
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicleRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /vehicle/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The fleet ID
+    get:
+      tags:
+        - Vehicle
+      summary: Get Vehicle Details
+      operationId: getVehicle
+      responses:
+        '200':
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleResponse'
+        default:
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    FleetResponse:
+      type: object
+      required: [ name,capacity ]
+      properties:
+        name:
+          type: string
+        capacity:
+          type: integer
+        vehicles:
+          type: array
+          items:
+            $ref: '#/components/schemas/FleetVehicleResponse'
+
+    FleetVehicleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+
+    VehicleResponse:
+      type: object
+      required: [ id,vin ]
+      properties:
+        id:
+          type: string
+        vin:
+          type: string
+        driver:
+          $ref: '#/components/schemas/DriverResponse'
+
+    DriverResponse:
+      type: object
+      required: [ id ]
+      properties:
+        id:
+          type: string
+
+    CreateFleet:
+      type: object
+      required: [ name, capacity ]
+      properties:
+        name:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: required
+        capacity:
+          type: integer
+          example: 10
+          x-oapi-codegen-extra-tags:
+            validate: required,gt=0
+
+    CreateVehicleRequest:
+      type: object
+      required: [ vin ]
+      properties:
+        vin:
+          type: string
+          x-oapi-codegen-extra-tags:
+            validate: required,uuid
+
+    IdResponse:
+      type: object
+      required: [ id ]
+      properties:
+        id:
+          type: string
+
+    Error:
+      type: object
+      required: [ code ]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
