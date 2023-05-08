@@ -1,6 +1,9 @@
 package server
 
 import (
+	"errors"
+	"fmt"
+	"github.com/dejano-with-tie/fantastigo/internal/common/server/httperr"
 	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -38,17 +41,16 @@ func (h HttpHandler) CreateFleet(c echo.Context) error {
 }
 
 func (h HttpHandler) GetFleet(c echo.Context) error {
-	return c.JSON(http.StatusOK, struct {
-		ID string `json:"id"`
-	}{ID: "hello"})
+	return errors.New("should respond with status=500, code=unknown")
 }
 
 func (h HttpHandler) CreateVehicle(c echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+	return httperr.New(httperr.ErrCodeNotImplemented, "Should respond with status=501 and code=not-implemented")
 }
 
 func (h HttpHandler) GetVehicle(c echo.Context, id string) error {
-	//TODO implement me
-	panic("implement me")
+	if e := h.app.VehicleSvc.Create(); e != nil {
+		return httperr.Wrap("business-error-code", fmt.Errorf("should respond with 422 and wrapped error: %w", e))
+	}
+	return echo.NewHTTPError(http.StatusNotImplemented)
 }

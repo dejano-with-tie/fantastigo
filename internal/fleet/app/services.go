@@ -1,10 +1,15 @@
 package app
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type (
 	FleetSvc struct {
 		repo FleetRepo
+	}
+	VehicleSvc struct {
 	}
 )
 
@@ -20,4 +25,8 @@ func (s FleetSvc) Create(fleet Fleet) (id string, err error) {
 	log.Default().Println("test default logging")
 	created, err := s.repo.Save(fleet)
 	return created.Id, err
+}
+
+func (s VehicleSvc) Create() error {
+	return fmt.Errorf("fail message from a service")
 }

@@ -1,5 +1,6 @@
 package app
 
 type App struct {
-	FleetSvc FleetSvc
+	FleetSvc   FleetSvc
+	VehicleSvc VehicleSvc
 }

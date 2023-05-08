@@ -14,6 +14,8 @@ require (
 	github.com/labstack/echo/v4 v4.10.2
 )
 
+require gopkg.in/yaml.v3 v3.0.1
+
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
@@ -50,5 +52,4 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

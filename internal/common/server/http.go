@@ -15,8 +15,10 @@ import (
 func Run(cfg config.Config, opts ...func(e *echo.Echo)) {
 	e := echo.New()
 
+	// Customize
 	e.Validator = NewValidator()
 	e.Binder = NewBinder()
+	e.HTTPErrorHandler = errHandler
 
 	setMiddlewares(e)
 
@@ -41,7 +43,11 @@ func Run(cfg config.Config, opts ...func(e *echo.Echo)) {
 }
 
 func setMiddlewares(e *echo.Echo) {
-	e.Use(middleware.Logger())
+	e.Use(
+		middleware.Recover(),   // Recover from all panics to always have your server up
+		middleware.Logger(),    // Log everything to stdout
+		middleware.RequestID(), // Generate a request id on the HTTP response headers for identification
+	)
 }
 
 func shutdownGracefully(e *echo.Echo) {

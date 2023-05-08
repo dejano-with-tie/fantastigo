@@ -16,7 +16,11 @@ func main() {
 	}
 
 	fs := app.NewFleetService(db.NewFleetInMemoryRepository())
-	application := app.App{FleetSvc: fs}
+	vs := app.VehicleSvc{}
+	application := app.App{
+		FleetSvc:   fs,
+		VehicleSvc: vs,
+	}
 
 	server.Run(cfg, func(e *echo.Echo) {
 		fleet.RegisterHandlers(e.Group("/api"), fleet.NewHttpHandler(application))
