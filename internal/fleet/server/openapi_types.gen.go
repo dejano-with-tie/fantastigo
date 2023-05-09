@@ -7,11 +7,25 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for CreateFleetVehicleTypes.
+const (
+	Bus   CreateFleetVehicleTypes = "bus"
+	Car   CreateFleetVehicleTypes = "car"
+	Truck CreateFleetVehicleTypes = "truck"
+	Van   CreateFleetVehicleTypes = "van"
+)
+
 // CreateFleet defines model for CreateFleet.
 type CreateFleet struct {
 	Capacity int    `json:"capacity" validate:"required,gt=0"`
 	Name     string `json:"name" validate:"required"`
+
+	// VehicleTypes Allowed vehicle types in this Fleet
+	VehicleTypes []CreateFleetVehicleTypes `json:"vehicleTypes" validate:"required"`
 }
+
+// CreateFleetVehicleTypes defines model for CreateFleet.VehicleTypes.
+type CreateFleetVehicleTypes string
 
 // CreateVehicleRequest defines model for CreateVehicleRequest.
 type CreateVehicleRequest struct {
@@ -52,6 +66,9 @@ type VehicleResponse struct {
 	Id     string          `json:"id"`
 	Vin    string          `json:"vin"`
 }
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse = Error
 
 // CreateFleetJSONRequestBody defines body for CreateFleet for application/json ContentType.
 type CreateFleetJSONRequestBody = CreateFleet

@@ -1,30 +1,27 @@
 // Package db Implements repository pattern for interacting with the database
 package db
 
-type VehicleTye int
-
-const (
-	Truck VehicleTye = iota
-	Bus
-	Van
-	Car
+import (
+	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
+	"time"
 )
 
-type Fleet struct {
+type fleet struct {
 	Id                  string
 	Name                string
 	Capacity            int
-	AllowedVehicleTypes []VehicleTye
-	Vehicles            []Vehicle
+	AllowedVehicleTypes []app.VehicleType
+	Vehicles            []vehicle
+	CreatedAt           time.Time
 }
 
-type Vehicle struct {
+type vehicle struct {
 	Id   string
 	Vin  string
-	Type VehicleTye
+	Type app.VehicleType
 }
 
-type Driver struct {
+type driver struct {
 	Id        string
 	FirstName string
 	LastName  string

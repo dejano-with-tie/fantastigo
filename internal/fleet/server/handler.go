@@ -26,18 +26,20 @@ func (h HttpHandler) CreateFleet(c echo.Context) error {
 		return err
 	}
 
-	fleet := app.Fleet{
-		Name:     r.Name,
-		Capacity: r.Capacity,
-	}
-
-	id, err := h.app.FleetSvc.Create(fleet)
-
+	id, err := h.app.FleetSvc.Create(r.Name, r.Capacity, mapVehicleTypes(r.VehicleTypes))
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, IdResponse{Id: id})
+	return c.JSON(http.StatusCreated, IdResponse{Id: *id})
+}
+
+func mapVehicleTypes(types []CreateFleetVehicleTypes) []app.VehicleType {
+	r := make([]app.VehicleType, len(types))
+	for _, v := range types {
+		r = append(r, app.GetVehicleType(string(v)))
+	}
+	return r
 }
 
 func (h HttpHandler) GetFleet(c echo.Context) error {

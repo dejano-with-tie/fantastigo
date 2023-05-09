@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"log"
 )
 
@@ -21,10 +22,19 @@ func NewFleetService(fleetRepo FleetRepo) FleetSvc {
 	return FleetSvc{repo: fleetRepo}
 }
 
-func (s FleetSvc) Create(fleet Fleet) (id string, err error) {
+func (s FleetSvc) Create(name string, capacity int, allowedVehicleTypes []VehicleType) (id *string, err error) {
 	log.Default().Println("test default logging")
-	created, err := s.repo.Save(fleet)
-	return created.Id, err
+
+	fleet, err := NewFleet(name, capacity, allowedVehicleTypes)
+	if err != nil {
+		return nil, apperr.Wrap("fleet:capacity-overflow", err)
+	}
+
+	if err := s.repo.Save(*fleet); err != nil {
+		return nil, err
+	}
+
+	return &fleet.Id, err
 }
 
 func (s VehicleSvc) Create() error {

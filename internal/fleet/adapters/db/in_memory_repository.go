@@ -3,20 +3,23 @@ package db
 import (
 	"fmt"
 	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
-	"github.com/google/uuid"
 	"sync"
+	"time"
 )
 
 // MemoryFleetRepository is an in memory implementation of fleet repository
 type MemoryFleetRepository struct {
-	storage     map[string]Fleet
+	storage     map[string]fleet
 	storageLock *sync.RWMutex
 }
+
+// ensure interface is implemented at compile time
+var _ app.FleetRepo = &MemoryFleetRepository{}
 
 // NewFleetInMemoryRepository constructor
 func NewFleetInMemoryRepository() *MemoryFleetRepository {
 	return &MemoryFleetRepository{
-		storage:     make(map[string]Fleet),
+		storage:     make(map[string]fleet),
 		storageLock: &sync.RWMutex{},
 	}
 }
@@ -40,21 +43,20 @@ func (m *MemoryFleetRepository) GetById(id string) (app.Fleet, error) {
 }
 
 // Save fleet to a backing storage.
-func (m *MemoryFleetRepository) Save(f app.Fleet) (app.Fleet, error) {
+func (m *MemoryFleetRepository) Save(f app.Fleet) error {
 	m.storageLock.Lock()
 	defer m.storageLock.Unlock()
-	// TODO via factory
-	created := Fleet{
-		Id:                  uuid.New().String(),
+
+	created := fleet{
+		Id:                  f.Id,
 		Name:                f.Name,
 		Capacity:            f.Capacity,
-		AllowedVehicleTypes: nil,
+		AllowedVehicleTypes: f.VehicleTypes,
 		Vehicles:            nil,
+		CreatedAt:           time.Now().UTC(),
 	}
 
 	m.storage[created.Id] = created
 
-	f.Id = created.Id
-
-	return f, nil
+	return nil
 }
