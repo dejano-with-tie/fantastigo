@@ -1,4 +1,4 @@
-package httperr
+package apperr
 
 import (
 	"fmt"
@@ -14,30 +14,30 @@ const (
 	ErrCodeUnauthorized   = "unauthorized"
 )
 
-type HttpErr struct {
+type AppErr struct {
 	Status  int
 	Code    string
 	Message string
 	Err     error
 }
 
-func (h *HttpErr) Error() string {
+func (h *AppErr) Error() string {
 	return fmt.Sprintf("%s: %s", h.Code, h.Message)
 }
 
-func New(code string, msg string) *HttpErr {
-	return &HttpErr{
+func New(code string, msg string) *AppErr {
+	return &AppErr{
 		Code:    code,
 		Message: msg,
 	}
 }
 
-func Wrap(code string, error error) *HttpErr {
+func Wrap(code string, error error) *AppErr {
 	if error == nil {
 		return New(code, "")
 	}
 
-	return &HttpErr{
+	return &AppErr{
 		Code:    code,
 		Message: error.Error(),
 		Err:     error,

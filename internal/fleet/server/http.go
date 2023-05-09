@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 	"fmt"
-	"github.com/dejano-with-tie/fantastigo/internal/common/server/httperr"
+	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -45,12 +45,12 @@ func (h HttpHandler) GetFleet(c echo.Context) error {
 }
 
 func (h HttpHandler) CreateVehicle(c echo.Context) error {
-	return httperr.New(httperr.ErrCodeNotImplemented, "Should respond with status=501 and code=not-implemented")
+	return apperr.New(apperr.ErrCodeNotImplemented, "Should respond with status=501 and code=not-implemented")
 }
 
 func (h HttpHandler) GetVehicle(c echo.Context, id string) error {
 	if e := h.app.VehicleSvc.Create(); e != nil {
-		return httperr.Wrap("business-error-code", fmt.Errorf("should respond with 422 and wrapped error: %w", e))
+		return apperr.Wrap("business-error-code", fmt.Errorf("should respond with 422 and wrapped error: %w", e))
 	}
 	return echo.NewHTTPError(http.StatusNotImplemented)
 }

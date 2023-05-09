@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 	"fmt"
-	"github.com/dejano-with-tie/fantastigo/internal/common/server/httperr"
+	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -11,13 +11,13 @@ import (
 )
 
 var httpErrorStatuses = map[string]int{
-	httperr.ErrCodeUnknown:        http.StatusInternalServerError,
-	httperr.ErrCodeInternal:       http.StatusInternalServerError,
-	httperr.ErrCodeBadRequest:     http.StatusBadRequest,
-	httperr.ErrCodeNotfound:       http.StatusNotFound,
-	httperr.ErrCodeConflict:       http.StatusConflict,
-	httperr.ErrCodeNotImplemented: http.StatusNotImplemented,
-	httperr.ErrCodeUnauthorized:   http.StatusUnauthorized,
+	apperr.ErrCodeUnknown:        http.StatusInternalServerError,
+	apperr.ErrCodeInternal:       http.StatusInternalServerError,
+	apperr.ErrCodeBadRequest:     http.StatusBadRequest,
+	apperr.ErrCodeNotfound:       http.StatusNotFound,
+	apperr.ErrCodeConflict:       http.StatusConflict,
+	apperr.ErrCodeNotImplemented: http.StatusNotImplemented,
+	apperr.ErrCodeUnauthorized:   http.StatusUnauthorized,
 }
 
 type (
@@ -51,13 +51,13 @@ func errHandler(err error, c echo.Context) {
 	}
 
 	// default
-	status := getHttpStatus(httperr.ErrCodeUnknown)
-	code := httperr.ErrCodeUnknown
+	status := getHttpStatus(apperr.ErrCodeUnknown)
+	code := apperr.ErrCodeUnknown
 	message := err.Error()
 	var validations []ValidationFieldResponse
 
 	// clean up & try to rewrite this with errors.Is
-	var httpErr *httperr.HttpErr
+	var appErr *apperr.AppErr
 	var echoHttpErr *echo.HTTPError
 	var validationErrs validator.ValidationErrors
 	if errors.As(err, &validationErrs) {
@@ -70,13 +70,13 @@ func errHandler(err error, c echo.Context) {
 			}
 			validations = append(validations, vfe)
 		}
-		status = getHttpStatus(httperr.ErrCodeBadRequest)
-		code = httperr.ErrCodeBadRequest
+		status = getHttpStatus(apperr.ErrCodeBadRequest)
+		code = apperr.ErrCodeBadRequest
 		message = "Request validation failed"
-	} else if errors.As(err, &httpErr) {
-		status = getHttpStatus(httpErr.Code)
-		code = httpErr.Code
-		message = httpErr.Message
+	} else if errors.As(err, &appErr) {
+		status = getHttpStatus(appErr.Code)
+		code = appErr.Code
+		message = appErr.Message
 	} else if errors.As(err, &echoHttpErr) {
 		status = echoHttpErr.Code
 		message = echoHttpErr.Error()
