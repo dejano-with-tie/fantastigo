@@ -15,7 +15,6 @@ const (
 )
 
 type AppErr struct {
-	Status  int
 	Code    string
 	Message string
 	Err     error
@@ -23,6 +22,10 @@ type AppErr struct {
 
 func (h *AppErr) Error() string {
 	return fmt.Sprintf("%s: %s", h.Code, h.Message)
+}
+
+func (h *AppErr) Unwrap() error {
+	return h.Err
 }
 
 func New(code string, msg string) *AppErr {
