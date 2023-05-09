@@ -24,5 +24,5 @@ To make things a bit more interesting, `ector` also provides other information b
 ## Development
 
 ### Quick start
-1. Build app: docker build -t fantastigo
+1. Build app: docker build -t fantastigo .
 2. Run app: docker run -p 8080:8080 fantastigo
