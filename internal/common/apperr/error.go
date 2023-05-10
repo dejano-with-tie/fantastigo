@@ -11,7 +11,12 @@ const (
 	ErrCodeNotfound       = "not-found"
 	ErrCodeConflict       = "conflict"
 	ErrCodeNotImplemented = "not-implemented"
+	ErrCodeInvalidValue   = "invalid-value"
 	ErrCodeUnauthorized   = "unauthorized"
+)
+
+var (
+	InvalidValueError = New(ErrCodeInvalidValue, "invalid value")
 )
 
 type AppErr struct {

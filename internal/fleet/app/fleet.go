@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 )
@@ -12,6 +13,12 @@ const (
 	Van   VehicleType = "van"
 	Car   VehicleType = "car"
 )
+const (
+	A DrivingLicenseCategory = "a"
+	B DrivingLicenseCategory = "b"
+	C DrivingLicenseCategory = "c"
+	D DrivingLicenseCategory = "d"
+)
 
 var (
 	vehicleTypes = map[string]VehicleType{
@@ -19,6 +26,12 @@ var (
 		"bus":   Bus,
 		"van":   Van,
 		"car":   Car,
+	}
+	drivingLicenseCategory = map[string]DrivingLicenseCategory{
+		"a": A,
+		"b": B,
+		"c": C,
+		"d": D,
 	}
 )
 
@@ -34,6 +47,12 @@ type (
 		Save(f Fleet) error
 	}
 	VehicleType string
+	Driver      struct {
+		firstName       string
+		lastName        string
+		licenseCategory DrivingLicenseCategory
+	}
+	DrivingLicenseCategory string
 )
 
 func NewFleet(name string, capacity int, vehicleTypes []VehicleType) (*Fleet, error) {
@@ -51,4 +70,12 @@ func NewFleet(name string, capacity int, vehicleTypes []VehicleType) (*Fleet, er
 
 func GetVehicleType(val string) VehicleType {
 	return vehicleTypes[val]
+}
+
+func GetDrivingLicenceCategory(val string) (*DrivingLicenseCategory, error) {
+	d := drivingLicenseCategory[val]
+	if len(d) == 0 {
+		return nil, fmt.Errorf("driver license type <value=%s>: error: %w", val, apperr.InvalidValueError)
+	}
+	return &d, nil
 }

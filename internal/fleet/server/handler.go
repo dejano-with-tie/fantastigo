@@ -9,16 +9,22 @@ import (
 	"net/http"
 )
 
-// HttpHandler implements http server handlers
-type HttpHandler struct {
-	app app.App
+type (
+	// FleetHttpHandler implements fleet http server handlers
+	FleetHttpHandler struct {
+		app app.App
+	}
+	// DriverHttpHandler implements driver http server handlers
+	DriverHttpHandler struct {
+		app app.App
+	}
+)
+
+func NewDriverHttpHandler(app app.App) *DriverHttpHandler {
+	return &DriverHttpHandler{app: app}
 }
 
-func NewHttpHandler(app app.App) *HttpHandler {
-	return &HttpHandler{app: app}
-}
-
-func (h HttpHandler) CreateFleet(c echo.Context) error {
+func (h FleetHttpHandler) CreateFleet(c echo.Context) error {
 	c.Logger().Debug("test debug log level")
 	r := CreateFleet{}
 
@@ -42,17 +48,40 @@ func mapVehicleTypes(types []CreateFleetVehicleTypes) []app.VehicleType {
 	return r
 }
 
-func (h HttpHandler) GetFleet(c echo.Context) error {
+func (h FleetHttpHandler) GetFleet(c echo.Context) error {
 	return errors.New("should respond with status=500, code=unknown")
 }
 
-func (h HttpHandler) CreateVehicle(c echo.Context) error {
+func (h FleetHttpHandler) CreateVehicle(c echo.Context) error {
 	return apperr.New(apperr.ErrCodeNotImplemented, "Should respond with status=501 and code=not-implemented")
 }
 
-func (h HttpHandler) GetVehicle(c echo.Context, id string) error {
+func (h FleetHttpHandler) GetVehicle(c echo.Context, id string) error {
 	if e := h.app.VehicleSvc.Create(); e != nil {
 		return apperr.Wrap("business-error-code", fmt.Errorf("should respond with 422 and wrapped error: %w", e))
 	}
 	return echo.NewHTTPError(http.StatusNotImplemented)
+}
+
+func NewFleetHttpHandler(app app.App) *FleetHttpHandler {
+	return &FleetHttpHandler{app: app}
+}
+
+func (d DriverHttpHandler) CreateDriver(ctx echo.Context) error {
+	var r = &CreateDriver{}
+	if err := ctx.Bind(r); err != nil {
+		return err
+	}
+
+	dlc, err := app.GetDrivingLicenceCategory(r.LicenceCategoryV2)
+	if err != nil {
+		return err
+	}
+
+	return d.app.DriverSvc.Create(r.FirstName, r.LastName, *dlc)
+}
+
+func (d DriverHttpHandler) GetDriver(ctx echo.Context) error {
+	//TODO implement me
+	panic("implement me")
 }

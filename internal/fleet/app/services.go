@@ -12,7 +12,14 @@ type (
 	}
 	VehicleSvc struct {
 	}
+	DriverSvc struct {
+	}
 )
+
+func (s DriverSvc) Create(firstName, lastName string, category DrivingLicenseCategory) error {
+	log.Default().Println(fmt.Sprintf("Create driver fname:%s, lname:%s, category: %s", firstName, lastName, category))
+	return nil
+}
 
 func NewFleetService(fleetRepo FleetRepo) FleetSvc {
 	if fleetRepo == nil {

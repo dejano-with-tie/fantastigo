@@ -76,7 +76,6 @@ func errHandler(err error, c echo.Context) {
 	} else if errors.As(err, &appErr) {
 		status = getHttpStatus(appErr.Code)
 		code = appErr.Code
-		message = appErr.Message
 	} else if errors.As(err, &echoHttpErr) {
 		status = echoHttpErr.Code
 		message = echoHttpErr.Error()

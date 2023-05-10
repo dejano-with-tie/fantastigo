@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dejano-with-tie/fantastigo/config"
 	openapi "github.com/go-openapi/runtime/middleware"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"net/http"
@@ -12,11 +13,11 @@ import (
 	"time"
 )
 
-func Run(cfg config.Config, opts ...func(e *echo.Echo)) {
+func Run(cfg config.Config, validate *validator.Validate, opts ...func(e *echo.Echo)) {
 	e := echo.New()
 
 	// Customize
-	e.Validator = NewValidator()
+	e.Validator = NewValidator(validate)
 	e.Binder = NewBinder()
 	e.HTTPErrorHandler = errHandler
 
