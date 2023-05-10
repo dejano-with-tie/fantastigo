@@ -1,3 +1,4 @@
+[//]: # (@formatter:off)
 # Content
 
 1. [Project Structure](#project-structure)
@@ -5,8 +6,7 @@
 
 ## Project Structure
 
-Project layout is inspired and follows
-go [community recommendations](https://github.com/golang-standards/project-layout).
+Project layout is inspired and follows go [community recommendations](https://github.com/golang-standards/project-layout).
 
 ### [`/cmd`](../cmd)
 
@@ -85,7 +85,7 @@ implementing the `Error` interface:
 ```go
 type NotFound struct { Id string }
 func (n *NotFound) Error() string {
-return fmt.Sprintf("Entity not found <id=%s>", n.Id)
+    return fmt.Sprintf("Entity not found <id=%s>", n.Id)
 }
 ```
 
@@ -100,19 +100,19 @@ a [custom error](../internal/common/server/errhandler.go) handler with enriched 
 
 ```go
 type (
-HttpErrResponse struct {
-Status      int                       `json:"-"`
-Code        string                    `json:"code"`
-Validations []ValidationFieldResponse `json:"validations,omitempty"`
-Message     string                    `json:"message,omitempty"`
-Trace       string                    `json:"trace,omitempty"`
-}
-ValidationFieldResponse struct {
-Property      string `json:"property"`
-Key           string `json:"error"`
-RejectedValue string `json:"rejectedValue"`
-Message       string `json:"message,omitempty"`
-}
+    HttpErrResponse struct {
+        Status      int                       `json:"-"`
+        Code        string                    `json:"code"`
+        Validations []ValidationFieldResponse `json:"validations,omitempty"`
+        Message     string                    `json:"message,omitempty"`
+        Trace       string                    `json:"trace,omitempty"`
+    }
+    ValidationFieldResponse struct {
+        Property      string `json:"property"`
+        Key           string `json:"error"`
+        RejectedValue string `json:"rejectedValue"`
+        Message       string `json:"message,omitempty"`
+    }
 )
 ```
 
