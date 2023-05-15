@@ -13,12 +13,12 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Returns fleet information with the list of vehicles. [TEST BUILD]
-	// (GET /fleet)
-	GetFleet(ctx echo.Context) error
 	// Create Fleet.
 	// (POST /fleet)
 	CreateFleet(ctx echo.Context) error
+	// Returns fleet information with the list of vehicles. [TEST BUILD]
+	// (GET /fleet/{id})
+	GetFleet(ctx echo.Context, id string) error
 	// Create vehicle
 	// (POST /vehicle)
 	CreateVehicle(ctx echo.Context) error
@@ -32,17 +32,6 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// GetFleet converts echo context to params.
-func (w *ServerInterfaceWrapper) GetFleet(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{""})
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetFleet(ctx)
-	return err
-}
-
 // CreateFleet converts echo context to params.
 func (w *ServerInterfaceWrapper) CreateFleet(ctx echo.Context) error {
 	var err error
@@ -51,6 +40,24 @@ func (w *ServerInterfaceWrapper) CreateFleet(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.CreateFleet(ctx)
+	return err
+}
+
+// GetFleet converts echo context to params.
+func (w *ServerInterfaceWrapper) GetFleet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetFleet(ctx, id)
 	return err
 }
 
@@ -111,8 +118,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/fleet", wrapper.GetFleet)
 	router.POST(baseURL+"/fleet", wrapper.CreateFleet)
+	router.GET(baseURL+"/fleet/:id", wrapper.GetFleet)
 	router.POST(baseURL+"/vehicle", wrapper.CreateVehicle)
 	router.GET(baseURL+"/vehicle/:id", wrapper.GetVehicle)
 

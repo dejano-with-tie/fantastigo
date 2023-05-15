@@ -89,13 +89,13 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// GetFleet request
-	GetFleet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CreateFleet request with any body
 	CreateFleetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateFleet(ctx context.Context, body CreateFleetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetFleet request
+	GetFleet(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateVehicle request with any body
 	CreateVehicleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -104,18 +104,6 @@ type ClientInterface interface {
 
 	// GetVehicle request
 	GetVehicle(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-}
-
-func (c *Client) GetFleet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetFleetRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
 }
 
 func (c *Client) CreateFleetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -132,6 +120,18 @@ func (c *Client) CreateFleetWithBody(ctx context.Context, contentType string, bo
 
 func (c *Client) CreateFleet(ctx context.Context, body CreateFleetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateFleetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetFleet(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetFleetRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -178,33 +178,6 @@ func (c *Client) GetVehicle(ctx context.Context, id string, reqEditors ...Reques
 	return c.Client.Do(req)
 }
 
-// NewGetFleetRequest generates requests for GetFleet
-func NewGetFleetRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/fleet")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewCreateFleetRequest calls the generic CreateFleet builder with application/json body
 func NewCreateFleetRequest(server string, body CreateFleetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -241,6 +214,40 @@ func NewCreateFleetRequestWithBody(server string, contentType string, body io.Re
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetFleetRequest generates requests for GetFleet
+func NewGetFleetRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/fleet/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -362,13 +369,13 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// GetFleet request
-	GetFleetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFleetResponse, error)
-
 	// CreateFleet request with any body
 	CreateFleetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFleetResponse, error)
 
 	CreateFleetWithResponse(ctx context.Context, body CreateFleetJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFleetResponse, error)
+
+	// GetFleet request
+	GetFleetWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetFleetResponse, error)
 
 	// CreateVehicle request with any body
 	CreateVehicleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateVehicleResponse, error)
@@ -377,29 +384,6 @@ type ClientWithResponsesInterface interface {
 
 	// GetVehicle request
 	GetVehicleWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetVehicleResponse, error)
-}
-
-type GetFleetResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]FleetResponse
-	JSONDefault  *Error
-}
-
-// Status returns HTTPResponse.Status
-func (r GetFleetResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetFleetResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
 }
 
 type CreateFleetResponse struct {
@@ -419,6 +403,29 @@ func (r CreateFleetResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateFleetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetFleetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]FleetResponse
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetFleetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetFleetResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -471,15 +478,6 @@ func (r GetVehicleResponse) StatusCode() int {
 	return 0
 }
 
-// GetFleetWithResponse request returning *GetFleetResponse
-func (c *ClientWithResponses) GetFleetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFleetResponse, error) {
-	rsp, err := c.GetFleet(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetFleetResponse(rsp)
-}
-
 // CreateFleetWithBodyWithResponse request with arbitrary body returning *CreateFleetResponse
 func (c *ClientWithResponses) CreateFleetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFleetResponse, error) {
 	rsp, err := c.CreateFleetWithBody(ctx, contentType, body, reqEditors...)
@@ -495,6 +493,15 @@ func (c *ClientWithResponses) CreateFleetWithResponse(ctx context.Context, body 
 		return nil, err
 	}
 	return ParseCreateFleetResponse(rsp)
+}
+
+// GetFleetWithResponse request returning *GetFleetResponse
+func (c *ClientWithResponses) GetFleetWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetFleetResponse, error) {
+	rsp, err := c.GetFleet(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetFleetResponse(rsp)
 }
 
 // CreateVehicleWithBodyWithResponse request with arbitrary body returning *CreateVehicleResponse
@@ -523,39 +530,6 @@ func (c *ClientWithResponses) GetVehicleWithResponse(ctx context.Context, id str
 	return ParseGetVehicleResponse(rsp)
 }
 
-// ParseGetFleetResponse parses an HTTP response from a GetFleetWithResponse call
-func ParseGetFleetResponse(rsp *http.Response) (*GetFleetResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetFleetResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []FleetResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseCreateFleetResponse parses an HTTP response from a CreateFleetWithResponse call
 func ParseCreateFleetResponse(rsp *http.Response) (*CreateFleetResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -576,6 +550,39 @@ func ParseCreateFleetResponse(rsp *http.Response) (*CreateFleetResponse, error) 
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetFleetResponse parses an HTTP response from a GetFleetWithResponse call
+func ParseGetFleetResponse(rsp *http.Response) (*GetFleetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetFleetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []FleetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

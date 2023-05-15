@@ -48,11 +48,19 @@ paths:
                   $ref: '#/components/schemas/IdResponse'
         default:
           $ref: '#/components/responses/ErrorResponse'
+  /fleet/{id}:
     get:
       tags:
         - Fleet
       summary: Returns fleet information with the list of vehicles. [TEST BUILD]
       operationId: getFleet
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Numeric ID of the fleet to get
       responses:
         '200':
           description: Fleet information

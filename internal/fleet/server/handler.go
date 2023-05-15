@@ -1,7 +1,6 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
@@ -48,8 +47,14 @@ func mapVehicleTypes(types []CreateFleetVehicleTypes) []app.VehicleType {
 	return r
 }
 
-func (h FleetHttpHandler) GetFleet(c echo.Context) error {
-	return errors.New("should respond with status=500, code=unknown")
+func (h FleetHttpHandler) GetFleet(c echo.Context, id string) error {
+
+	fleet, err := h.app.FleetSvc.GetFleet(id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, &FleetResponse{fleet.Capacity, fleet.Name, nil})
 }
 
 func (h FleetHttpHandler) CreateVehicle(c echo.Context) error {

@@ -38,7 +38,21 @@ services:
     depends_on:
       - influxdb
 
+  fantastigo_pg:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - fantastigo_pg:/var/lib/postgresql/data
+
+
 volumes:
   fantastigo-influxdb2:
   fantastigo-telegraf:
   fantastigo-chronograf:
+  fantastigo_pg:
+      driver: local

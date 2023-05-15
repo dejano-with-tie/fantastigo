@@ -47,3 +47,14 @@ func (s FleetSvc) Create(name string, capacity int, allowedVehicleTypes []Vehicl
 func (s VehicleSvc) Create() error {
 	return fmt.Errorf("fail message from a service")
 }
+
+func (s FleetSvc) GetFleet(id string) (f Fleet, e error) {
+
+	fleet, err := s.repo.GetById(id)
+
+	if err != nil {
+		return Fleet{}, apperr.Wrap("fleet:not-found", err)
+	}
+
+	return fleet, nil
+}
