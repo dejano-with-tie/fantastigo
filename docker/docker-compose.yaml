@@ -10,20 +10,7 @@ services:
       - '8086:8086'
     env_file:
       - tick/default.env
-
-  telegraf:
-    image: telegraf:1.24.4
-    container_name: fantastigo-telegraf
-    hostname: telegraf
-    volumes:
-      - ./tick/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-      - fantastigo-telegraf:/etc/telegraf/telegraf.d:rw
-    ports:
-      - '127.0.0.1:8125:8125/udp'
-    env_file:
-      - tick/default.env
-    depends_on:
-      - influxdb
+    networks: [ fantastigo ]
 
   chronograf:
     image: chronograf:1.9.4
@@ -35,6 +22,7 @@ services:
       - "8888:8888"
     env_file:
       - tick/default.env
+    networks: [ fantastigo ]
     depends_on:
       - influxdb
 
@@ -49,10 +37,31 @@ services:
     volumes:
       - fantastigo_pg:/var/lib/postgresql/data
 
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: fantastigo-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mqtt/log:/mosquitto/log/
+      - mqtt-data:/mosquitto/data/
+    networks: [ fantastigo ]
+
+  mqtt-ui:
+    image: smeagolworms4/mqtt-explorer
+    container_name: fantastigo-mqtt-ui
+    ports:
+      - "4000:4000"
+    networks: [ fantastigo ]
 
 volumes:
   fantastigo-influxdb2:
-  fantastigo-telegraf:
-  fantastigo-chronograf:
   fantastigo_pg:
-      driver: local
+  fantastigo-chronograf:
+  mqtt-data:
+
+networks:
+  fantastigo:
+    name: fantastigo

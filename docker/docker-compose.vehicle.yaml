@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  telegraf:
+    build:
+      context: ./tick/
+      dockerfile: ./telegraf.Dockerfile
+    image: telegraf:fantastigo-vehicle-0.0.1
+    container_name: fantastigo-telegraf
+    hostname: telegraf
+    volumes:
+      - ./tick/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - fantastigo-telegraf:/etc/telegraf/telegraf.d:rw
+    ports:
+      - '127.0.0.1:8125:8125/udp'
+      - '127.0.0.1:9273:9273'
+    env_file:
+      - tick/default.env
+    networks: [ fantastigo ]
+    external_links:
+      - fantastigo-mqtt
+      - fantastigo-influxdb
+
+volumes:
+  fantastigo-telegraf:
+
+networks:
+  fantastigo:
+    external: true

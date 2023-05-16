@@ -1,0 +1,139 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Vehicle Metrics CollEctor
+  description: Vehicle Monitoring Api
+  contact:
+    name: FantastiGo
+    url: https://github.com/dejano-with-tie/fantastigo/issues
+servers:
+  - url: '{protocol}://{hostname}:{port}/api'
+    variables:
+      protocol:
+        enum: [ http, https ]
+        default: http
+      port:
+        default: "8081"
+      hostname:
+        default: "localhost"
+security:
+  - bearerAuth: [ ]
+tags:
+  - name: Vehicle
+    description: Vehicle Information & Metrics
+paths:
+
+  /identity:
+    get:
+      tags:
+        - Vehicle
+      summary: Returns vehicle identity
+      operationId: getIdentity
+      responses:
+        '200':
+          description: Vehicle Identity
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/VehicleIdentityResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /metrics:
+    get:
+      tags:
+        - Vehicle
+      summary: Returns metrics collected by underlying collector
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Vehicle Metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleMetricsResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /status:
+    get:
+      tags:
+        - Vehicle
+      summary: Returns vehicle status
+      operationId: getStatus
+      responses:
+        '200':
+          description: Vehicle Status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleStatusResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+components:
+  responses:
+    ErrorResponse:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    400ErrorResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    VehicleIdentityResponse:
+      type: object
+      required: [ vin ]
+      properties:
+        vin:
+          type: string
+
+    VehicleMetricsResponse:
+      type: object
+      required: [ key,value ]
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+
+    VehicleStatusResponse:
+      type: object
+      required: [ vin ]
+      properties:
+        vin:
+          type: string
+
+    IdResponse:
+      type: object
+      required: [ id ]
+      properties:
+        id:
+          type: string
+
+    Error:
+      type: object
+      required: [ code ]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
