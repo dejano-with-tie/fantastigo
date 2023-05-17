@@ -35,9 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/VehicleIdentityResponse'
+                $ref: '#/components/schemas/VehicleIdentityResponse'
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -47,6 +45,13 @@ paths:
         - Vehicle
       summary: Returns metrics collected by underlying collector
       operationId: getMetrics
+      parameters:
+        - in: query
+          name: measurement-name
+          schema:
+            type: string
+          required: false
+          description: filter metrics by given measurement name
       responses:
         '200':
           description: Vehicle Metrics
@@ -71,9 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VehicleStatusResponse'
+                $ref: '#/components/schemas/VehicleStatusResponse'
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -108,12 +111,9 @@ components:
 
     VehicleMetricsResponse:
       type: object
-      required: [ key,value ]
-      properties:
-        key:
-          type: string
-        value:
-          type: string
+      additionalProperties: true
+      example:
+        { "Name": "gps_lat","Tags": { "host": "telegraf","swBuild": "1.1","swType": "sw-type-docker","thingName": "vin123" },"Value": "77.96085999999947","Timestamp": "2023-05-17T16:40:50.002+02:00" }
 
     VehicleStatusResponse:
       type: object

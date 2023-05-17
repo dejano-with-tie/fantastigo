@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -90,7 +92,7 @@ type ClientInterface interface {
 	GetIdentity(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetMetrics request
-	GetMetrics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetMetrics(ctx context.Context, params *GetMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetStatus request
 	GetStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -108,8 +110,8 @@ func (c *Client) GetIdentity(ctx context.Context, reqEditors ...RequestEditorFn)
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetMetrics(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetMetricsRequest(c.Server)
+func (c *Client) GetMetrics(ctx context.Context, params *GetMetricsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMetricsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +162,7 @@ func NewGetIdentityRequest(server string) (*http.Request, error) {
 }
 
 // NewGetMetricsRequest generates requests for GetMetrics
-func NewGetMetricsRequest(server string) (*http.Request, error) {
+func NewGetMetricsRequest(server string, params *GetMetricsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -177,6 +179,26 @@ func NewGetMetricsRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	queryValues := queryURL.Query()
+
+	if params.MeasurementName != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "measurement-name", runtime.ParamLocationQuery, *params.MeasurementName); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -260,7 +282,7 @@ type ClientWithResponsesInterface interface {
 	GetIdentityWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetIdentityResponse, error)
 
 	// GetMetrics request
-	GetMetricsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetMetricsResponse, error)
+	GetMetricsWithResponse(ctx context.Context, params *GetMetricsParams, reqEditors ...RequestEditorFn) (*GetMetricsResponse, error)
 
 	// GetStatus request
 	GetStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStatusResponse, error)
@@ -269,7 +291,7 @@ type ClientWithResponsesInterface interface {
 type GetIdentityResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *map[string]interface{}
+	JSON200      *VehicleIdentityResponse
 	JSONDefault  *Error
 }
 
@@ -315,7 +337,7 @@ func (r GetMetricsResponse) StatusCode() int {
 type GetStatusResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]VehicleStatusResponse
+	JSON200      *VehicleStatusResponse
 	JSONDefault  *Error
 }
 
@@ -345,8 +367,8 @@ func (c *ClientWithResponses) GetIdentityWithResponse(ctx context.Context, reqEd
 }
 
 // GetMetricsWithResponse request returning *GetMetricsResponse
-func (c *ClientWithResponses) GetMetricsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetMetricsResponse, error) {
-	rsp, err := c.GetMetrics(ctx, reqEditors...)
+func (c *ClientWithResponses) GetMetricsWithResponse(ctx context.Context, params *GetMetricsParams, reqEditors ...RequestEditorFn) (*GetMetricsResponse, error) {
+	rsp, err := c.GetMetrics(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -377,7 +399,7 @@ func ParseGetIdentityResponse(rsp *http.Response) (*GetIdentityResponse, error) 
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest map[string]interface{}
+		var dest VehicleIdentityResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -443,7 +465,7 @@ func ParseGetStatusResponse(rsp *http.Response) (*GetStatusResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []VehicleStatusResponse
+		var dest VehicleStatusResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

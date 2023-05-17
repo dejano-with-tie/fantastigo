@@ -1,6 +1,10 @@
 package metrics
 
 import (
+	"fmt"
+	"github.com/dejano-with-tie/fantastigo/internal/common/util/collection"
+	"golang.org/x/exp/maps"
+	"strings"
 	"sync"
 )
 
@@ -19,11 +23,37 @@ func NewStore() *Store {
 }
 
 func (s *Store) Get(query Query) ([]Measurement, error) {
-	//TODO implement me
+	if query.IsZero() {
+		return []Measurement{}, nil
+	}
+
 	s.itemsLock.RLock()
 	defer s.itemsLock.RUnlock()
-	var result []Measurement
-	return append(result, s.items["gps_lat"]), nil
+
+	var results = make([]Measurement, 0, len(s.items))
+	qmn := query.MeasurementName
+	qmt := query.MeasurementTags
+
+	// filter by measurement name
+	if len(qmn) > 0 && qmn != "*" {
+		results = s.find(qmn)
+	} else {
+		results = maps.Values(s.items)
+	}
+
+	// filter by tags
+	if len(qmt) > 0 {
+		results = collection.Filter(results, func(m Measurement) bool {
+			for k, v := range qmt {
+				if strings.Contains(m.Tags.flatten(), fmt.Sprintf("%s=%v", k, v)) {
+					return true
+				}
+			}
+			return false
+		})
+	}
+
+	return results, nil
 }
 
 func (s *Store) Put(m Measurement) error {
@@ -33,4 +63,14 @@ func (s *Store) Put(m Measurement) error {
 		s.items[m.Name] = m
 	}
 	return nil
+}
+
+func (s *Store) find(key string) []Measurement {
+	s.itemsLock.RLock()
+	defer s.itemsLock.RUnlock()
+
+	values := maps.Values(s.items)
+	return collection.Filter(values, func(m Measurement) bool {
+		return strings.HasPrefix(m.Name, key)
+	})
 }

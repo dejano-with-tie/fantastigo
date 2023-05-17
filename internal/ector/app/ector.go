@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"fmt"
 	"github.com/dejano-with-tie/fantastigo/internal/ector/metrics"
 )
 
@@ -30,15 +29,6 @@ type Identity struct {
 	Vin string
 }
 
-func (e *Ector) Status() (*Vehicle, error) {
-	return nil, nil
-}
-
-func (e *Ector) Tmp() {
-	r, _ := e.metrics.Storer.Get(metrics.Query{})
-	fmt.Println(r)
-}
-
 func (e *Ector) GetIdentity() (*Vehicle, error) {
 	q := metrics.Query{
 		MeasurementName: "system_uptime",
@@ -56,4 +46,12 @@ func (e *Ector) GetIdentity() (*Vehicle, error) {
 	}
 
 	return &Vehicle{Vin: i}, nil
+}
+
+func (e *Ector) Status() (*Vehicle, error) {
+	return nil, nil
+}
+
+func (e *Ector) GetMetrics(q metrics.Query) ([]metrics.Measurement, error) {
+	return e.metrics.Storer.Get(q)
 }

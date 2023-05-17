@@ -31,11 +31,12 @@ func NewPrometheusSourcer(storer Storer) *PrometheusSourcer {
 func (p *PrometheusSourcer) run(measurements chan []Measurement, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	for range ticker.C {
-		measurement := p.poll()
-		fmt.Printf("polled: %v\n", measurement[0])
 
-		measurements <- measurement
+	// poll once before ticking
+	measurements <- p.poll()
+
+	for range ticker.C {
+		measurements <- p.poll()
 	}
 }
 

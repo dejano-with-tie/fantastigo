@@ -4,6 +4,10 @@
 package server
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/labstack/echo/v4"
 )
 
@@ -14,7 +18,7 @@ type ServerInterface interface {
 	GetIdentity(ctx echo.Context) error
 	// Returns metrics collected by underlying collector
 	// (GET /metrics)
-	GetMetrics(ctx echo.Context) error
+	GetMetrics(ctx echo.Context, params GetMetricsParams) error
 	// Returns vehicle status
 	// (GET /status)
 	GetStatus(ctx echo.Context) error
@@ -42,8 +46,17 @@ func (w *ServerInterfaceWrapper) GetMetrics(ctx echo.Context) error {
 
 	ctx.Set(BearerAuthScopes, []string{""})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetMetricsParams
+	// ------------- Optional query parameter "measurement-name" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "measurement-name", ctx.QueryParams(), &params.MeasurementName)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter measurement-name: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetMetrics(ctx)
+	err = w.Handler.GetMetrics(ctx, params)
 	return err
 }
 

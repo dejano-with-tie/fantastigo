@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -30,13 +32,27 @@ func (n *NopStorer) Get(query Query) ([]Measurement, error) {
 }
 
 type Query struct {
-	MeasurementName string
+	MeasurementName string // matched by value.StartsWith. use '*' to match all
 	MeasurementTags map[string]string
+}
+
+func (q Query) IsZero() bool {
+	return len(q.MeasurementName) == 0 && len(q.MeasurementTags) == 0
 }
 
 type Measurement struct {
 	Name      string
-	Tags      map[string]string
+	Tags      MeasurementTag
 	Value     any
 	Timestamp time.Time
+}
+
+type MeasurementTag map[string]string
+
+func (t MeasurementTag) flatten() string {
+	sb := strings.Builder{}
+	for k, v := range t {
+		sb.WriteString(fmt.Sprintf("%s=%s;", k, v))
+	}
+	return sb.String()
 }

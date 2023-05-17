@@ -1,7 +1,9 @@
 package server
 
 import (
+	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"github.com/dejano-with-tie/fantastigo/internal/ector/app"
+	"github.com/dejano-with-tie/fantastigo/internal/ector/metrics"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -17,10 +19,9 @@ func NewEctorHttpHandler(app *app.Ector) *EctorHttpHandler {
 }
 
 func (e EctorHttpHandler) GetIdentity(ctx echo.Context) error {
-	//TODO implement me
 	i, err := e.app.GetIdentity()
 	if err != nil {
-		return err
+		return apperr.Wrap(apperr.ErrCodeInternal, err)
 	}
 
 	return ctx.JSON(http.StatusOK, i)
@@ -37,7 +38,21 @@ func (e EctorHttpHandler) GetStatus(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, &r)
 }
 
-func (e EctorHttpHandler) GetMetrics(c echo.Context) error {
-	//TODO implement me
-	return nil
+func (e EctorHttpHandler) GetMetrics(ctx echo.Context, params GetMetricsParams) error {
+	// wildcard matches all metrics
+	queryName := "*"
+	if params.MeasurementName != nil {
+		queryName = *params.MeasurementName
+	}
+
+	q := metrics.Query{
+		MeasurementName: queryName,
+	}
+
+	m, err := e.app.GetMetrics(q)
+	if err != nil {
+		return apperr.Wrap(apperr.ErrCodeInternal, err)
+	}
+
+	return ctx.JSON(http.StatusOK, m)
 }

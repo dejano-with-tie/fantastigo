@@ -19,10 +19,7 @@ type VehicleIdentityResponse struct {
 }
 
 // VehicleMetricsResponse defines model for VehicleMetricsResponse.
-type VehicleMetricsResponse struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
+type VehicleMetricsResponse map[string]interface{}
 
 // VehicleStatusResponse defines model for VehicleStatusResponse.
 type VehicleStatusResponse struct {
@@ -31,3 +28,9 @@ type VehicleStatusResponse struct {
 
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse = Error
+
+// GetMetricsParams defines parameters for GetMetrics.
+type GetMetricsParams struct {
+	// MeasurementName filter metrics by given measurement name
+	MeasurementName *string `form:"measurement-name,omitempty" json:"measurement-name,omitempty"`
+}
