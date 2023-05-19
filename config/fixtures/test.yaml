@@ -1,0 +1,8 @@
+env-name: default
+server:
+  addr: :8080
+  debug: false
+  swagger-ui: true
+  openapi-spec:
+    - spec.yaml
+  timeout: 3

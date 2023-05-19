@@ -1,5 +1,14 @@
+env-name: default
 server:
   addr: :8080
+  debug: false
   swagger-ui: true
   openapi-spec:
     - fleet.yaml
+  timeout: 3
+db:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  dbname: "postgres"

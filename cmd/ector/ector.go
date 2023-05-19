@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/dejano-with-tie/fantastigo/config"
 	"github.com/dejano-with-tie/fantastigo/internal/common/server"
 	"github.com/dejano-with-tie/fantastigo/internal/ector/app"
@@ -11,11 +12,10 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load()
-	if err != nil {
-		panic("failed to load config")
-	}
-
+	var activeEnv string
+	flag.StringVar(&activeEnv, "env", "", "active environment: dev, qa, prod")
+	flag.Parse()
+	cfg := config.MustLoad(config.NewLoadConfig(activeEnv))
 	v := validator.New()
 
 	storer := metrics.NewStore()
