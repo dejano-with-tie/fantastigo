@@ -10,11 +10,12 @@ import (
 	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
 	inner "github.com/dejano-with-tie/fantastigo/internal/fleet/server"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang-migrate/migrate/v4"
+	migrate "github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
+	"log"
 )
 
 func main() {
@@ -60,8 +61,12 @@ func executeMigrations(cfg config.DB) *sql.DB {
 		"postgres", driver)
 	must("Unable to create migration", err)
 
-	err = m.Up()
-	must("Error executing migrations", err)
+	if err := m.Up(); err != nil {
+		if err != migrate.ErrNoChange {
+			must("Error executing migrations", err)
+		}
+		log.Println("db migrations: no change")
+	}
 
 	return db
 }
