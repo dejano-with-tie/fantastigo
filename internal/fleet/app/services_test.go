@@ -6,6 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var MockId = "3545"
+var MockFleet = Fleet{MockId, "Test fleet", 10, []VehicleType{GetVehicleType("truck"),
+	GetVehicleType("car")}}
+
 type MockFleetRepository struct {
 	mock.Mock
 }
@@ -30,8 +34,7 @@ func TestFleetSvc_Create(t *testing.T) {
 	mockRepo.On("Save").Return(nil) // mocking call to a repo function
 
 	fleetSvc := NewFleetService(mockRepo)
-	id, err := fleetSvc.Create("Test fleet", 10, []VehicleType{GetVehicleType("truck"),
-		GetVehicleType("car")})
+	id, err := fleetSvc.Create(MockFleet.Name, MockFleet.Capacity, MockFleet.VehicleTypes)
 
 	mockRepo.AssertExpectations(t)
 	assert.NoError(t, err)
@@ -41,18 +44,15 @@ func TestFleetSvc_Create(t *testing.T) {
 func TestFleetSvc_GetFleet(t *testing.T) {
 
 	mockRepo := new(MockFleetRepository)
-	mockId := "3545"
-	mockFleet := Fleet{mockId, "Test fleet", 10, []VehicleType{GetVehicleType("truck"),
-		GetVehicleType("car")}}
 
-	mockRepo.On("GetById").Return(mockFleet, nil)
+	mockRepo.On("GetById").Return(MockFleet, nil)
 
 	fleetSvc := NewFleetService(mockRepo)
-	fleet, err := fleetSvc.GetFleet(mockId)
+	fleet, err := fleetSvc.GetFleet(MockId)
 
 	mockRepo.AssertExpectations(t)
 	assert.Nil(t, err)
-	assert.Equal(t, mockId, fleet.Id)
+	assert.Equal(t, MockId, fleet.Id)
 	assert.Equal(t, "Test fleet", fleet.Name)
 	assert.Equal(t, 10, fleet.Capacity)
 	assert.Equal(t, 2, len(fleet.VehicleTypes))

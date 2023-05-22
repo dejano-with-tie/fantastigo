@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/dejano-with-tie/fantastigo/internal/fleet/app"
 	"log"
+	sq "github.com/Masterminds/squirrel"
 )
 
 type FleetRepository struct {
@@ -20,7 +21,10 @@ func (m *FleetRepository) GetById(id string) (app.Fleet, error) {
 
 	fleet := app.Fleet{}
 
-	err := m.db.QueryRow("SELECT id, name, capacity FROM fleet WHERE id = $1", id).
+	err := sq.Select("id", "name", "capacity").From("fleet").Where(sq.Eq{"id": id}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(m.db).
+		QueryRow().
 		Scan(&fleet.Id, &fleet.Name, &fleet.Capacity)
 
 	if err != nil {
