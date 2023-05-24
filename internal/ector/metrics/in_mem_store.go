@@ -2,10 +2,11 @@ package metrics
 
 import (
 	"fmt"
-	"github.com/dejano-with-tie/fantastigo/internal/common/util/collection"
-	"golang.org/x/exp/maps"
 	"strings"
 	"sync"
+
+	"github.com/dejano-with-tie/fantastigo/internal/common/util/collection"
+	"golang.org/x/exp/maps"
 )
 
 type Store struct {
@@ -66,6 +67,8 @@ func (s *Store) Put(m Measurement) error {
 }
 
 func (s *Store) find(key string) []Measurement {
+	// TODO: I think this will end up in a deadlock, because the caller
+	// already locked this mutex
 	s.itemsLock.RLock()
 	defer s.itemsLock.RUnlock()
 
