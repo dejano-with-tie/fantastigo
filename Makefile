@@ -21,7 +21,7 @@ install: download
 .PHONY: download
 download:
 	@echo "Download go.mod dependencies"
-	@go mod download
+	@go mod tidy
 
 test:
 	@go test coverage.out ./... -v
