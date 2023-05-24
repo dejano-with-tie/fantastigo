@@ -121,7 +121,7 @@ func TestLoad(t *testing.T) {
 
 	for _, tt := range tests {
 
-		mustExec(t, tt.before)
+		mustExec(t, "before", tt.before)
 
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Load(tt.args.lc)
@@ -134,7 +134,7 @@ func TestLoad(t *testing.T) {
 			}
 		})
 
-		mustExec(t, tt.after)
+		mustExec(t, "after", tt.after)
 	}
 }
 
@@ -156,13 +156,13 @@ func setEnv(eVars map[string]string) error {
 	return nil
 }
 
-func mustExec(t *testing.T, fn func() error) {
+func mustExec(t *testing.T, desc string, fn func() error) {
 	if fn == nil {
 		return
 	}
 
 	err := fn()
 	if err != nil {
-		t.Errorf("Failed to execute fn: %v", err)
+		t.Errorf("Failed to execute %s fn: %v", desc, err)
 	}
 }
