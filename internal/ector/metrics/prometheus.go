@@ -2,13 +2,14 @@ package metrics
 
 import (
 	"fmt"
-	"github.com/dejano-with-tie/fantastigo/internal/common/util/collection"
 	"io"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/dejano-with-tie/fantastigo/internal/common/util/collection"
 )
 
 type PrometheusSourcer struct {
@@ -101,13 +102,13 @@ func (p *PrometheusSourcer) getMetrics() []string {
 	resp, err := http.Get("http://localhost:9273/metrics") // prometheus url
 	if err != nil {
 		fmt.Printf("error making http request: %s\n", err)
-		return []string{}
+		return nil
 	}
 
 	raw, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("client: could not read response body: %s\n", err)
-		return []string{}
+		return nil
 	}
 
 	lines := strings.Split(string(raw), "\n")

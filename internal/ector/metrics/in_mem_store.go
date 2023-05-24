@@ -25,7 +25,7 @@ func NewStore() *Store {
 
 func (s *Store) Get(query Query) ([]Measurement, error) {
 	if query.IsZero() {
-		return []Measurement{}, nil
+		return nil, nil
 	}
 
 	s.itemsLock.RLock()
