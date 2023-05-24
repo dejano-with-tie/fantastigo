@@ -22,3 +22,12 @@ install: download
 download:
 	@echo "Download go.mod dependencies"
 	@go mod download
+
+test:
+	@go test coverage.out ./... -v
+
+testcover:
+	@go test -coverprofile coverage.out ./... -v
+
+coverage: testcover
+	go tool cover -o cov.html -html=coverage.out; chromium cov.html
