@@ -75,7 +75,7 @@ func GetVehicleType(val string) VehicleType {
 func GetDrivingLicenceCategory(val string) (*DrivingLicenseCategory, error) {
 	d := drivingLicenseCategory[val]
 	if len(d) == 0 {
-		return nil, fmt.Errorf("driver license type <value=%s>: error: %w", val, apperr.InvalidValueError)
+		return nil, fmt.Errorf("driver license type <value=%s>: error: %w", val, apperr.ErrInvalidValue)
 	}
 	return &d, nil
 }
