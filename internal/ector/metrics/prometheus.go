@@ -20,6 +20,8 @@ func NewPrometheusSourcer(storer Storer) *PrometheusSourcer {
 	measurements := make(chan []Measurement)
 	sourcer := PrometheusSourcer{Storer: storer}
 
+	// TODO: handle graceful stop not to leak these go routines with sync.WaitGroup
+	// and stop channel
 	go sourcer.run(measurements, time.Second*20)
 
 	go func() {
