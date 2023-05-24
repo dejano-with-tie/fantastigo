@@ -20,7 +20,7 @@ func TestLoad(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Fail on missing env file",
+			name: "Fail_on_missing_env_file",
 			args: args{lc: LoadConfig{
 				Env:      "missing",
 				DirPath:  "fixtures",
@@ -30,7 +30,7 @@ func TestLoad(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Config is constructed from default env file",
+			name: "Config_is_constructed_from_default_env_file",
 			args: args{LoadConfig{
 				Env:      "",
 				DirPath:  "fixtures",
@@ -45,7 +45,7 @@ func TestLoad(t *testing.T) {
 			}},
 		},
 		{
-			name: "Config from env specific file overrides default config",
+			name: "Config_from_env_specific_file_overrides_default_config",
 			args: args{LoadConfig{
 				Env:      "dev",
 				DirPath:  "fixtures",
@@ -60,7 +60,7 @@ func TestLoad(t *testing.T) {
 			}},
 		},
 		{
-			name: "Env variable has highest priority and overrides other configs",
+			name: "Env_variable_has_highest_priority_and_overrides_other_configs",
 			args: args{LoadConfig{
 				Env:      "dev",
 				DirPath:  "fixtures",
@@ -89,7 +89,7 @@ func TestLoad(t *testing.T) {
 			}},
 		},
 		{
-			name: "Env variables without expected prefix 'FGO' are ignored",
+			name: "Env_variables_without_expected_prefix_FGO_are_ignored",
 			args: args{LoadConfig{
 				Env:      "dev",
 				DirPath:  "fixtures",
