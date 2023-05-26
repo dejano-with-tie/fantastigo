@@ -3,11 +3,12 @@ package server
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"runtime/debug"
+
 	"github.com/dejano-with-tie/fantastigo/internal/common/apperr"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"runtime/debug"
 )
 
 var httpErrorStatuses = map[string]int{
@@ -60,7 +61,8 @@ func errHandler(err error, c echo.Context) {
 	var appErr *apperr.AppErr
 	var echoHttpErr *echo.HTTPError
 	var validationErrs validator.ValidationErrors
-	if errors.As(err, &validationErrs) {
+	switch {
+	case errors.As(err, &validationErrs):
 		for _, v := range validationErrs {
 			vfe := ValidationFieldResponse{
 				Property:      v.Field(),
@@ -73,10 +75,10 @@ func errHandler(err error, c echo.Context) {
 		status = getHttpStatus(apperr.ErrCodeBadRequest)
 		code = apperr.ErrCodeBadRequest
 		message = "Request validation failed"
-	} else if errors.As(err, &appErr) {
+	case errors.As(err, &appErr):
 		status = getHttpStatus(appErr.Code)
 		code = appErr.Code
-	} else if errors.As(err, &echoHttpErr) {
+	case errors.As(err, &echoHttpErr):
 		status = echoHttpErr.Code
 		message = echoHttpErr.Error()
 	}

@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	InvalidValueError = New(ErrCodeInvalidValue, "invalid value")
+	ErrInvalidValue = New(ErrCodeInvalidValue, "invalid value")
 )
 
 type AppErr struct {

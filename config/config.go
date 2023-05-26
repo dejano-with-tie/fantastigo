@@ -2,13 +2,14 @@ package config
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/knadh/koanf"
 	kyaml "github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
-	"path/filepath"
-	"strings"
-	"time"
 )
 
 var k = koanf.New(".")
@@ -90,13 +91,9 @@ func Load(loadCfg LoadConfig) (Config, error) {
 
 	// env vars
 	if err := k.Load(env.Provider("FGO_", ".", func(s string) string {
-		// trim prefix
 		s = strings.TrimPrefix(s, "FGO_")
-		// lower
 		s = strings.ToLower(s)
-		// replace the double underscore with -
 		s = strings.Replace(s, "__", "-", -1)
-		// replace _ with .
 		return strings.Replace(s, "_", ".", -1)
 	}), nil); err != nil {
 		return cfg, fmt.Errorf("error loading env vars: %v", err)

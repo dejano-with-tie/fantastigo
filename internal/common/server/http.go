@@ -2,15 +2,17 @@ package server
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"sync"
+	"time"
+
 	"github.com/dejano-with-tie/fantastigo/config"
 	openapi "github.com/go-openapi/runtime/middleware"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
 )
 
 func Run(cfg config.Config, validate *validator.Validate, opts ...func(e *echo.Echo)) {
@@ -34,13 +36,16 @@ func Run(cfg config.Config, validate *validator.Validate, opts ...func(e *echo.E
 	e.Debug = cfg.Server.Debug
 
 	// Start server in a separate goroutine
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		if err := e.Start(cfg.Server.Addr); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
 
-	shutdownGracefully(e)
+	shutdownGracefully(e, &wg)
 }
 
 func setMiddlewares(e *echo.Echo) {
@@ -51,7 +56,7 @@ func setMiddlewares(e *echo.Echo) {
 	)
 }
 
-func shutdownGracefully(e *echo.Echo) {
+func shutdownGracefully(e *echo.Echo, wg *sync.WaitGroup) {
 	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
 	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
 	quit := make(chan os.Signal)
@@ -62,6 +67,7 @@ func shutdownGracefully(e *echo.Echo) {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
+	wg.Wait()
 }
 
 func openApiHandler(_ []string, e *echo.Echo) {
